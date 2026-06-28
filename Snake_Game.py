@@ -4,13 +4,22 @@ import random
 root = tk.Tk()
 root.title("Snake - 1")
 
-SIZE = 40
-W = 800
-H = 800
+SIZE = 20
+W = 400
+H = 400
+
+game_over = False
+
+
 
 canvas = tk.Canvas(root, width=W,height = H, bg="white")
 canvas.pack()
 
+main_label = tk.Label(root, text="Main Content Area", bg="white")
+main_label.pack()
+
+max_x = W//SIZE
+max_y = H//SIZE
 
 snake = [(10,10)]
 
@@ -34,10 +43,28 @@ def draw():
                                 fill="green")
         
 def game_loop():
-    global snake,food
+        
+    global snake,food, game_over
+    if game_over:
+        return
 
     head_x,head_y = snake[0]
     new_head = (head_x + dx,head_y +dy)
+
+
+    if new_head[0]< 0 or new_head[0]>= max_x or \
+    new_head[1]< 0 or new_head[1]>= max_y:
+        game_over = True
+        main_label.config(text="Game Over")
+        print("hit")
+
+    if new_head in snake:
+        print("Touch")
+        game_over = True
+        main_label.config(text="Game Over")
+
+
+
     snake.insert(0,new_head)
 
     if new_head == food:
@@ -49,6 +76,19 @@ def game_loop():
 
     draw()
     root.after(150,game_loop)
+
+def restart():
+    global snake,dx,dy,food,game_over
+    snake = [(10,10)]
+    dx,dy = 1,0
+    food = (random.randint(0,max_x-1), random.randint(0,max_y - 1))
+    game_over = False
+    main_label.config(text="")
+    draw()
+    root.after(150,game_loop)
+
+restart_btn = tk.Button(root,text="Restart",command= restart)
+restart_btn.pack(pady=5)
 
 def up(event):
         global dx,dy
@@ -71,7 +111,10 @@ root.bind("<Down>",down)
 root.bind("<Left>",left)
 root.bind("<Right>",right)
 
-    
+
+
+      
+
     
 draw()
 root.after(150,game_loop)
